@@ -1,23 +1,23 @@
 import React from 'react';
-import { MemoryRouter, Route, useLocation, Routes } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import 'jest-styled-components';
 import { ToDoListProvider } from 'Contexts/ToDoList';
 import Detail from '.';
+import { renderWithRouterMatch } from 'renderWithRouterMatch';
 
 describe('<Detail />', () => {
   it('renders component correctly', () => {
-    const path = '/detail/0';
+    const route = '/detail/0';
+    const path = '/detail/:id';
     
     localStorage.setItem('ToDoList', '["ToDo 1"]');
 
+    const view = renderWithRouterMatch(<Detail />, route, path);
+
     const { container } = render(
       <ToDoListProvider>
-        <MemoryRouter initialEntries={[path]}>
-          <Routes>
-            <Route path="/detail/:id" element={<Detail />} />
-          </Routes>
-        </MemoryRouter>
+        {view}
       </ToDoListProvider>
     );
 
@@ -31,8 +31,8 @@ describe('<Detail />', () => {
   });
 
   it('deletes ToDo data', () => {
-    const path = '/';
-    const changed = '/detail/0';
+    const route = ['/', '/detail/0'];
+    const path = '/detail/:id';
     
     localStorage.setItem('ToDoList', '["ToDo 1"]');
 
@@ -41,14 +41,11 @@ describe('<Detail />', () => {
       return <div>{pathname}</div>;
     };
 
+    const view = renderWithRouterMatch(<Detail />, route, path, <TestComponent />);
+
     render(
       <ToDoListProvider>
-        <MemoryRouter initialEntries={[path, changed]}>
-          <TestComponent />
-          <Routes>
-            <Route path="/detail/:id" element={<Detail />} />
-          </Routes>
-        </MemoryRouter>
+        {view}
       </ToDoListProvider>
     );
 
